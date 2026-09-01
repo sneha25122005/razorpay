@@ -1,0 +1,22 @@
+import os
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker, declarative_base
+
+# Default to SQLite for zero-config local runs. Point DATABASE_URL at a real
+# Postgres instance for production — the models use only Postgres-portable
+# types (UUID stored as String(36), indexed timestamps, FKs) so the swap is
+# a one-line env change plus `alembic upgrade head`.
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./recover.db")
+
+connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
+engine = create_engine(DATABASE_URL, connect_args=connect_args)
+SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+Base = declarative_base()
+
+
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()

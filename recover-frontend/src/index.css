@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --ink: #211d17;
+  --ink-soft: #514a3e;
+  --muted: #8a8071;
+  --bg: #f3efe5;
+  --panel: #faf8f2;
+  --line: rgba(127, 110, 87, 0.2);
+  --line-strong: rgba(92, 77, 59, 0.26);
+  --accent: #6e5a3e;
+  --accent-soft: #ece3ce;
+  --positive: #3e6349;
+  --positive-soft: #e4ebe1;
+  --negative: #99422f;
+  --negative-soft: #f3e2dc;
+  --warn: #8c6a28;
+  --warn-soft: #f1e7cd;
+  font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  line-height: 1.6;
+  font-weight: 400;
+  color: var(--ink);
+  background: var(--bg);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: 'IBM Plex Sans', ui-sans-serif, system-ui, sans-serif;
+  line-height: 1.6;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.rc-root {
+  background: var(--bg);
+  color: var(--ink);
+}
+
+.rc-serif {
+  font-family: 'Fraunces', ui-serif, Georgia, serif;
+}
+
+.rc-mono {
+  font-family: 'IBM Plex Mono', ui-monospace, monospace;
+}
+
+.rc-scrollbar::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.rc-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(110, 90, 62, 0.38);
+  border-radius: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .rc-root * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
