@@ -7,10 +7,10 @@ build/
 coverage/
 *.log
 .env
-!.env.example
-!.env.*.example
 .DS_Store
 recover.db
+!.env.example
+!.env.*.example
 **/node_modules/
 **/.venv/
 **/venv/
