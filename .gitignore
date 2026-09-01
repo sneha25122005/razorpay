@@ -20,3 +20,4 @@ recover.db
 **/*.pyo
 **/*.db
 **/.DS_Store
+test.js
