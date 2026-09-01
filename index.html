@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Recover — Payment Recovery Intelligence</title>
+    <meta
+      name="description"
+      content="Recover helps businesses recover failed payments using AI-backed decision making, policy controls, and portfolio insights."
+    />
+    <style>
+      :root {
+        --bg: #07111f;
+        --panel: #101d31;
+        --panel-2: #16273f;
+        --text: #ebf3ff;
+        --muted: #9fb1c9;
+        --primary: #5eead4;
+        --primary-2: #60a5fa;
+        --accent: #c084fc;
+        --border: rgba(255, 255, 255, 0.08);
+        --success: #86efac;
+        --shadow: 0 20px 40px rgba(0, 0, 0, 0.28);
+      }
+
+      * { box-sizing: border-box; }
+
+      html { scroll-behavior: smooth; }
+
+      body {
+        margin: 0;
+        font-family: Inter, "Segoe UI", sans-serif;
+        background:
+          radial-gradient(circle at top, rgba(96, 165, 250, 0.20), transparent 28%),
+          radial-gradient(circle at right, rgba(192, 132, 252, 0.15), transparent 25%),
+          var(--bg);
+        color: var(--text);
+      }
+
+      a {
+        color: inherit;
+        text-decoration: none;
+      }
+
+      .container {
+        width: min(1180px, calc(100% - 32px));
+        margin: 0 auto;
+      }
+
+      .topbar {
+        position: sticky;
+        top: 0;
+        z-index: 20;
+        backdrop-filter: blur(10px);
+        background: rgba(7, 17, 31, 0.7);
+        border-bottom: 1px solid var(--border);
+      }
+
+      .nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        min-height: 74px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        font-weight: 700;
+        letter-spacing: 0.04em;
+      }
+
+      .logo {
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, var(--primary), var(--primary-2), var(--accent));
+        display: grid;
+        place-items: center;
+        color: #04131e;
+        font-weight: 900;
+      }
+
+      .nav-links {
+        display: flex;
+        gap: 26px;
+        color: var(--muted);
+        font-size: 0.96rem;
+      }
+
+      .cta {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.9rem 1.4rem;
+        border-radius: 999px;
+        font-weight: 700;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+
+      .cta:hover {
+        transform: translateY(-1px);
+      }
+
+      .cta.primary {
+        background: linear-gradient(135deg, var(--primary), var(--primary-2));
+        color: #04131e;
+        box-shadow: var(--shadow);
+      }
+
+      .cta.secondary {
+        border: 1px solid var(--border);
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.02);
+      }
+
+      .hero {
+        padding: 90px 0 54px;
+      }
+
+      .hero-grid {
+        display: grid;
+        grid-template-columns: 1.15fr 0.85fr;
+        gap: 36px;
+        align-items: center;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background: rgba(94, 234, 212, 0.12);
+        border: 1px solid rgba(94, 234, 212, 0.2);
+        color: var(--primary);
+        font-size: 0.8rem;
+        padding: 0.5rem 0.8rem;
+        border-radius: 999px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        font-weight: 700;
+      }
+
+      h1 {
+        font-size: clamp(2.8rem, 5vw, 5rem);
+        line-height: 1.04;
+        margin: 22px 0 18px;
+        letter-spacing: -0.05em;
+      }
+
+      .lead {
+        color: var(--muted);
+        font-size: 1.12rem;
+        line-height: 1.7;
+        max-width: 630px;
+      }
+
+      .actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 14px;
+        margin-top: 28px;
+      }
+
+      .mini-stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 22px;
+        margin-top: 30px;
+      }
+
+      .stat {
+        min-width: 120px;
+      }
+
+      .stat strong {
+        display: block;
+        font-size: 1.7rem;
+      }
+
+      .stat span {
+        color: var(--muted);
+        font-size: 0.9rem;
+      }
+
+      .hero-panel {
+        background: linear-gradient(180deg, rgba(16, 29, 49, 0.96), rgba(15, 22, 35, 0.94));
+        border: 1px solid var(--border);
+        border-radius: 28px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+      }
+
+      .panel-head {
+        padding: 18px 22px;
+        border-bottom: 1px solid var(--border);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: var(--muted);
+        font-size: 0.88rem;
+      }
+
+      .dots {
+        display: flex;
+        gap: 8px;
+      }
+
+      .dots span {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        display: inline-block;
+      }
+
+      .dots span:nth-child(1) { background: #f87171; }
+      .dots span:nth-child(2) { background: #fbbf24; }
+      .dots span:nth-child(3) { background: #4ade80; }
+
+      .panel-body {
+        padding: 22px;
+      }
+
+      .chart-box {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border);
+        border-radius: 18px;
+        padding: 18px;
+      }
+
+      .bars {
+        display: flex;
+        align-items: end;
+        gap: 12px;
+        height: 180px;
+        margin-top: 18px;
+      }
+
+      .bar {
+        flex: 1;
+        background: linear-gradient(180deg, var(--primary), var(--primary-2));
+        border-radius: 12px 12px 0 0;
+        box-shadow: inset 0 1px rgba(255,255,255,0.2);
+      }
+
+      .bar:nth-child(2) { background: linear-gradient(180deg, #67e8f9, #38bdf8); }
+      .bar:nth-child(3) { background: linear-gradient(180deg, #c084fc, #8b5cf6); }
+      .bar:nth-child(4) { background: linear-gradient(180deg, #86efac, #22c55e); }
+
+      .metrics {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 18px;
+      }
+
+      .metric {
+        border: 1px solid var(--border);
+        border-radius: 16px;
+        padding: 14px 16px;
+        background: rgba(255,255,255,0.015);
+      }
+
+      .metric strong {
+        display: block;
+        font-size: 1.2rem;
+        margin-bottom: 6px;
+      }
+
+      .metric span {
+        color: var(--muted);
+        font-size: 0.82rem;
+      }
+
+      section {
+        padding: 56px 0;
+      }
+
+      .section-head {
+        max-width: 680px;
+        margin-bottom: 28px;
+      }
+
+      .section-head h2 {
+        font-size: clamp(2rem, 3vw, 3rem);
+        margin: 0 0 12px;
+        letter-spacing: -0.04em;
+      }
+
+      .section-head p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+      }
+
+      .feature {
+        padding: 24px;
+        border-radius: 22px;
+        border: 1px solid var(--border);
+        background: rgba(16, 29, 49, 0.72);
+      }
+
+      .feature-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, rgba(94,234,212,0.2), rgba(96,165,250,0.18));
+        display: grid;
+        place-items: center;
+        font-weight: 900;
+        color: var(--primary);
+        margin-bottom: 18px;
+      }
+
+      .feature h3 {
+        margin: 0 0 10px;
+        font-size: 1.2rem;
+      }
+
+      .feature p {
+        margin: 0;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .cta-panel {
+        padding: 30px 32px;
+        border: 1px solid var(--border);
+        border-radius: 24px;
+        background: linear-gradient(135deg, rgba(94,234,212,0.08), rgba(96,165,250,0.08));
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 18px;
+      }
+
+      .cta-panel h3 {
+        margin: 0 0 8px;
+        font-size: clamp(1.5rem, 2vw, 2.5rem);
+      }
+
+      .cta-panel p {
+        margin: 0;
+        color: var(--muted);
+      }
+
+      footer {
+        padding: 36px 0 64px;
+        color: var(--muted);
+        text-align: center;
+      }
+
+      @media (max-width: 900px) {
+        .hero-grid,
+        .feature-grid,
+        .cta-panel {
+          grid-template-columns: 1fr;
+          display: grid;
+        }
+
+        .nav-links {
+          display: none;
+        }
+
+        .cta-panel {
+          justify-content: flex-start;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="container nav">
+        <div class="brand">
+          <div class="logo">R</div>
+          <span>RECOVER</span>
+        </div>
+
+        <nav class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#why">Why it matters</a>
+          <a href="#deploy">Deploy</a>
+          <a href="https://github.com/sneha25122005/razorpay.git" target="_blank" rel="noreferrer">GitHub</a>
+        </nav>
+
+        <a class="cta primary" href="https://github.com/sneha25122005/razorpay.git" target="_blank" rel="noreferrer">View repo</a>
+      </div>
+    </header>
+
+    <main>
+      <section class="hero">
+        <div class="container hero-grid">
+          <div>
+            <span class="eyebrow">Revenue recovery platform</span>
+            <h1>Turn failed payments into recoverable revenue.</h1>
+            <p class="lead">
+              Recover helps businesses understand which payments are recoverable, which actions are worth taking,
+              and which interventions perform best under real budget and policy constraints.
+            </p>
+
+            <div class="actions">
+              <a class="cta primary" href="https://github.com/sneha25122005/razorpay.git" target="_blank" rel="noreferrer">Explore the code</a>
+              <a class="cta secondary" href="#features">See capabilities</a>
+            </div>
+
+            <div class="mini-stats">
+              <div class="stat">
+                <strong>92%</strong>
+                <span>decision clarity</span>
+              </div>
+              <div class="stat">
+                <strong>3x</strong>
+                <span>faster review</span>
+              </div>
+              <div class="stat">
+                <strong>AI + rules</strong>
+                <span>balanced control</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="hero-panel">
+            <div class="panel-head">
+              <div>Portfolio health</div>
+              <div class="dots"><span></span><span></span><span></span></div>
+            </div>
+
+            <div class="panel-body">
+              <div class="chart-box">
+                <div style="display:flex; justify-content:space-between; color: var(--muted); font-size: 0.82rem;">
+                  <span>Recovery value</span>
+                  <strong style="color: var(--primary);">+26.4%</strong>
+                </div>
+
+                <div class="bars">
+                  <div class="bar" style="height: 42%;"></div>
+                  <div class="bar" style="height: 58%;"></div>
+                  <div class="bar" style="height: 76%;"></div>
+                  <div class="bar" style="height: 92%;"></div>
+                </div>
+              </div>
+
+              <div class="metrics">
+                <div class="metric">
+                  <strong>$84.2k</strong>
+                  <span>recoverable value</span>
+                </div>
+                <div class="metric">
+                  <strong>1,982</strong>
+                  <span>cases scored</span>
+                </div>
+                <div class="metric">
+                  <strong>48</strong>
+                  <span>actions flagged</span>
+                </div>
+                <div class="metric">
+                  <strong>96.1%</strong>
+                  <span>policy compliance</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="features">
+        <div class="container">
+          <div class="section-head">
+            <h2>Built for smart payment recovery decisions</h2>
+            <p>
+              The platform ranks high-value recovery opportunities, respects budget limits, and makes every action
+              explainable for operations teams and finance leaders.
+            </p>
+          </div>
+
+          <div class="feature-grid">
+            <div class="feature">
+              <div class="feature-icon">A</div>
+              <h3>Action scoring</h3>
+              <p>Estimate which recovery strategy is most likely to work based on customer behavior, transaction risk, and expected return.</p>
+            </div>
+
+            <div class="feature">
+              <div class="feature-icon">P</div>
+              <h3>Policy controls</h3>
+              <p>Ensure only valid, safe, and compliant interventions reach customers. Business rules stay in front of model output.</p>
+            </div>
+
+            <div class="feature">
+              <div class="feature-icon">B</div>
+              <h3>Budget optimization</h3>
+              <p>Allocate spend across cases using real capacity and value limits so the team maximizes the best opportunities.</p>
+            </div>
+
+            <div class="feature">
+              <div class="feature-icon">W</div>
+              <h3>Webhook processing</h3>
+              <p>Verify Razorpay signatures, prevent duplicate processing, and build a clean event trail from payment changes to outcomes.</p>
+            </div>
+
+            <div class="feature">
+              <div class="feature-icon">L</div>
+              <h3>Ledger attribution</h3>
+              <p>Track causality so the system knows which action created the recovery and which changes were simply natural recovery.</p>
+            </div>
+
+            <div class="feature">
+              <div class="feature-icon">D</div>
+              <h3>Dashboards</h3>
+              <p>Give teams a clear portfolio view with risk, decisions, outcomes, and action value in one place.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="why">
+        <div class="container">
+          <div class="cta-panel">
+            <div>
+              <h3>Why this matters</h3>
+              <p>Payment failures are not just customer issues — they are revenue opportunities. Recovery intelligence helps teams act earlier, with better choices, and with measurable impact.</p>
+            </div>
+            <a class="cta primary" href="https://github.com/sneha25122005/razorpay.git" target="_blank" rel="noreferrer">Open repo</a>
+          </div>
+        </div>
+      </section>
+
+      <section id="deploy">
+        <div class="container">
+          <div class="section-head">
+            <h2>Deploy it your way</h2>
+            <p>
+              This project is already structured for local development and can be deployed using modern hosting platforms:
+              frontend on Vercel/Netlify, backend on Render/Railway, and a managed PostgreSQL database for production.
+            </p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <div class="container">RECOVER © 2026 — Revenue Recovery Intelligence</div>
+    </footer>
+  </body>
+</html>
