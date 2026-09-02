@@ -18,6 +18,11 @@ app.add_middleware(
 app.include_router(router, prefix="/api")
 
 
+@app.get("/")
+def root():
+    return {"status": "ok", "service": "recover-api", "docs": "/docs"}
+
+
 @app.get("/health")
 def health():
     return {"status": "ok", "decision_engine": "online"}
