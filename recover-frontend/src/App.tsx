@@ -183,7 +183,7 @@ function buildCase(rng: () => number, idx: number): CaseRecord {
   };
 }
 
-function useSyntheticPortfolio(seed = 42, n = 26) {
+export function useSyntheticPortfolio(seed = 42, n = 26) {
   return useMemo(() => {
     const rng = mulberry32(seed);
     const cases = Array.from({ length: n }, (_, i) => buildCase(rng, i));
@@ -193,6 +193,104 @@ function useSyntheticPortfolio(seed = 42, n = 26) {
     const net = gross - natural - cost;
     return { cases, gross, natural, cost, net };
   }, [seed, n]);
+}
+
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'https://razorpay-2-l5nh.onrender.com').replace(/\/$/, '');
+
+type ApiAction = {
+  action: string;
+  cost: number;
+  recovery_prob: number;
+  incremental_prob: number;
+  expected_incremental_value: number;
+  net_value: number;
+};
+
+type ApiCase = {
+  case_ref: string;
+  leak_type: LeakType;
+  amount_at_risk: number;
+  age_hours: number;
+  natural_recovery_prob: number;
+  best_action: string;
+  final_decision: string;
+  agent_conflict: boolean;
+  conflict_reason: string | null;
+  policy_allowed: boolean;
+  policy_reason: string | null;
+  promise_active: boolean;
+  actions: ApiAction[];
+};
+
+type ApiLedger = {
+  gross_recovered: number;
+  natural_self_cure: number;
+  intervention_cost: number;
+  net_incremental_value: number;
+};
+
+function mapApiCase(item: ApiCase): CaseRecord {
+  const actions = item.actions.map((action) => ({
+    name: action.action as ActionName,
+    cost: action.cost,
+    uplift: action.incremental_prob,
+    recoveryProb: action.recovery_prob,
+    incrementalProb: action.incremental_prob,
+    expectedIncremental: action.expected_incremental_value,
+    netValue: action.net_value,
+  }));
+
+  return {
+    id: item.case_ref,
+    leakType: item.leak_type,
+    amount: item.amount_at_risk,
+    ageHours: item.age_hours,
+    naturalRecoveryProb: item.natural_recovery_prob,
+    actions,
+    bestAction: item.best_action as ActionName,
+    agentConflict: { active: item.agent_conflict, reason: item.conflict_reason },
+    promiseActive: item.promise_active,
+    policyStatus: { allowed: item.policy_allowed, reason: item.policy_reason },
+    finalDecision: item.final_decision as DecisionName,
+    recovered: 0,
+    naturalPortion: 0,
+    costIncurred: 0,
+    trace: [],
+  };
+}
+
+function useBackendPortfolio() {
+  const [portfolio, setPortfolio] = useState<{ gross: number; natural: number; cost: number; net: number; cases: CaseRecord[] } | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const loadPortfolio = async () => {
+      try {
+        const [portfolioResponse, ledgerResponse] = await Promise.all([
+          fetch(`${API_BASE_URL}/api/portfolio`),
+          fetch(`${API_BASE_URL}/api/ledger`),
+        ]);
+        if (!portfolioResponse.ok || !ledgerResponse.ok) throw new Error('Backend request failed');
+        const [cases, ledger] = await Promise.all([
+          portfolioResponse.json() as Promise<ApiCase[]>,
+          ledgerResponse.json() as Promise<ApiLedger>,
+        ]);
+        setPortfolio({
+          gross: ledger.gross_recovered,
+          natural: ledger.natural_self_cure,
+          cost: ledger.intervention_cost,
+          net: ledger.net_incremental_value,
+          cases: cases.map(mapApiCase),
+        });
+      } catch {
+        setError('Unable to load the recovery backend. Please try again shortly.');
+      }
+    };
+
+    void loadPortfolio();
+  }, []);
+
+  return { portfolio, error };
 }
 
 function Pill({ children, tone = 'neutral', icon: Icon }: { children?: React.ReactNode; tone?: 'neutral' | 'live' | 'warn' | 'bad'; icon?: LucideIcon }) {
@@ -302,7 +400,7 @@ function MetricHero({ gross, natural, cost, net }: { gross: number; natural: num
     <div className="rounded-[18px] border border-[var(--line)] bg-[var(--panel)] p-6 md:p-8">
       <div className="mb-5 flex items-center justify-between">
         <span className="rc-mono text-xs tracking-[0.16em] text-[var(--muted)]">NET INCREMENTAL VALUE</span>
-        <Pill>SYNTHETIC DEMO DATA</Pill>
+        <Pill tone="live">LIVE BACKEND DATA</Pill>
       </div>
       <div className="rc-serif text-[clamp(2.6rem,6vw,4.2rem)] leading-none text-[var(--ink)]">{rupeeL(net)}</div>
       <div className="mt-6 grid grid-cols-2 gap-4 text-[13px] md:grid-cols-4 rc-mono">
@@ -687,7 +785,7 @@ function DecisionDrawer({ c, onClose }: { c: CaseRecord | null; onClose: () => v
 }
 
 export default function App() {
-  const portfolio = useSyntheticPortfolio(42, 26);
+  const { portfolio, error } = useBackendPortfolio();
   const [tab, setTab] = useState<'command' | 'portfolio'>('command');
   const [selected, setSelected] = useState<CaseRecord | null>(null);
   const [paletteOpen, setPaletteOpen] = useState(false);
@@ -706,6 +804,17 @@ export default function App() {
     window.addEventListener('keydown', onKeyDown);
     return () => window.removeEventListener('keydown', onKeyDown);
   }, []);
+
+  if (!portfolio) {
+    return (
+      <div className="rc-root flex min-h-screen items-center justify-center px-6">
+        <div className="max-w-md text-center">
+          <div className="rc-serif text-2xl">RECOVER //</div>
+          <p className="mt-3 text-sm text-[var(--muted)]">{error ?? 'Connecting to the recovery backend...'}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="rc-root min-h-screen">
