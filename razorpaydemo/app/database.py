@@ -7,6 +7,8 @@ from sqlalchemy.orm import sessionmaker, declarative_base
 # types (UUID stored as String(36), indexed timestamps, FKs) so the swap is
 # a one-line env change plus `alembic upgrade head`.
 DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./recover.db")
+if DATABASE_URL.startswith("postgres://"):
+    DATABASE_URL = DATABASE_URL.replace("postgres://", "postgresql://", 1)
 
 connect_args = {"check_same_thread": False} if DATABASE_URL.startswith("sqlite") else {}
 engine = create_engine(DATABASE_URL, connect_args=connect_args)
